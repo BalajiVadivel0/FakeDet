@@ -1,0 +1,14 @@
+flask
+torch
+torchvision
+opencv-python
+numpy
+pillow
+python-dotenv
+gunicorn
+watchdog
+flask-cors
+pytest
+requests-mock
+transformers
+

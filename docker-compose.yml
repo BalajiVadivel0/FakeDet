@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: packages/frontend/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_URL=http://localhost:3001
+      - VITE_WS_URL=ws://localhost:3001
+    volumes:
+      - ./packages/frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: .
+      dockerfile: packages/backend/Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - FRONTEND_URL=http://localhost:3000
+      - AI_SERVICE_URL=http://ai-service:5000
+      - FORENSIC_SERVICE_URL=http://forensic-engine:5001
+      - MONGODB_URI=mongodb://mongodb:27017/deepfake-detector
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - ./packages/backend:/app
+      - /app/node_modules
+    depends_on:
+      - mongodb
+      - redis
+      - ai-service
+      - forensic-engine
+
+  ai-service:
+    build:
+      context: .
+      dockerfile: packages/ai-service/Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - MODEL_PATH=/app/models/deepfake_detector.pth
+    volumes:
+      - ./packages/ai-service:/app
+      - ./models:/app/models
+
+  forensic-engine:
+    build:
+      context: .
+      dockerfile: packages/forensic-engine/Dockerfile
+    ports:
+      - "5001:5001"
+    environment:
+      - PORT=5001
+    volumes:
+      - ./packages/forensic-engine:/app
+      - /app/node_modules
+
+  mongodb:
+    image: mongo:7.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=deepfake-detector
+
+  redis:
+    image: redis:7.2-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  mongodb_data:
+  redis_data:

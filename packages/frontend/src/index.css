@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;500;700&display=swap');
+
+:root {
+  /* Colors */
+  --bg-dark: #050505;
+  --bg-panel: #0a0f16;
+  --primary-cyan: #00f3ff;
+  --primary-glow: rgba(0, 243, 255, 0.4);
+  --danger-red: #ff003c;
+  --danger-glow: rgba(255, 0, 60, 0.4);
+  --text-main: #e0e6ed;
+  --text-dim: #94a3b8;
+  
+  /* Borders & Glass */
+  --border-neon: 1px solid rgba(0, 243, 255, 0.3);
+  --glass-bg: rgba(10, 15, 22, 0.7);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+
+  /* Spacing */
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 2rem;
+
+  /* Fonts */
+  --font-display: 'Orbitron', sans-serif;
+  --font-body: 'Rajdhani', sans-serif;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Utilities */
+.neon-text {
+  color: var(--primary-cyan);
+  text-shadow: 0 0 10px var(--primary-glow);
+}
+
+.danger-text {
+  color: var(--danger-red);
+  text-shadow: 0 0 10px var(--danger-glow);
+}
+
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: var(--glass-border);
+  border-radius: 12px;
+}
+
+.btn-cyber {
+  background: transparent;
+  border: 1px solid var(--primary-cyan);
+  color: var(--primary-cyan);
+  padding: 0.75rem 1.5rem;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-cyber:hover {
+  background: var(--primary-cyan);
+  color: var(--bg-dark);
+  box-shadow: 0 0 20px var(--primary-glow);
+}
+
+/* Scanline Animation */
+.scanline {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: rgba(0, 243, 255, 0.5);
+  animation: scan 3s linear infinite;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.3;
+}
+
+@keyframes scan {
+  0% { top: -10%; }
+  100% { top: 110%; }
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
