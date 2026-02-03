@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import NavBar from './components/NavBar';
 import UploadZone from './components/UploadZone';
 import AnalysisResult from './components/AnalysisResult';
@@ -7,14 +8,15 @@ function App() {
   const [file, setFile] = useState<File | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState<any>(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
+
+  // Mock History for now
+  const [history, setHistory] = useState<any[]>([]);
 
   const handleFileSelect = async (selectedFile: File) => {
     setFile(selectedFile);
     setAnalyzing(true);
     setResult(null);
-
-    // Simulate API call for now (until actual backend connection)
-    // In next step: replace with actual fetch to localhost:3001/api/analyze
 
     const formData = new FormData();
     formData.append('image', selectedFile);
@@ -30,17 +32,13 @@ function App() {
       const data = await response.json();
       setResult(data);
       setAnalyzing(false);
+      fetchHistory();
 
     } catch (error) {
       console.error("Upload failed", error);
       setAnalyzing(false);
     }
   };
-
-
-
-  // Fetch history on load
-  const [history, setHistory] = useState<any[]>([]);
 
   const fetchHistory = async () => {
     try {
@@ -49,101 +47,93 @@ function App() {
         const data = await res.json();
         setHistory(data);
       }
-    } catch (e) {
-      console.error("Failed to fetch history");
-    }
+    } catch (e) { console.error("History fetch error"); }
   };
 
   React.useEffect(() => {
     fetchHistory();
   }, []);
 
-  // Update fetchHistory after analysis
-  React.useEffect(() => {
-    if (!analyzing && result) {
-      fetchHistory();
-    }
-  }, [analyzing, result]);
-
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <div className="scanline"></div>
       <NavBar />
 
-      <main style={{ flex: 1, padding: '2rem', display: 'flex', gap: '2rem', maxWidth: '1600px', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
+      <main style={{
+        flex: 1,
+        position: 'relative',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        padding: '2rem',
+        maxWidth: '1200px',
+        margin: '0 auto',
+        width: '100%'
+      }}>
 
-        {/* Left Panel: Input */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-          <div className="glass-panel" style={{ padding: '2rem' }}>
-            <h1 className="neon-text" style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>EVIDENCE ANALYSIS</h1>
-            <p style={{ color: 'var(--text-dim)' }}>Upload media artifacts for forensic deepfake verification.</p>
-          </div>
+        {/* Hero Section - Animate out when result comes */}
+        <AnimatePresence>
+          {!result && !analyzing && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, height: 0, overflow: 'hidden' }}
+              style={{ textAlign: 'center', margin: '4rem 0 3rem 0', width: '100%', maxWidth: '800px' }}
+            >
+              <h1 className="title-display" style={{ fontSize: '4rem', marginBottom: '1rem' }}>
+                DEEPFAKE <span style={{ color: 'var(--primary-cyan)' }}>DETECTOR</span>
+              </h1>
+              <p style={{ fontSize: '1.25rem', color: 'var(--text-dim)', lineHeight: 1.6 }}>
+                Advanced forensic verification using hybrid AI visualization.
+                Detect digital manipulation in real-time.
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-          <div style={{ flex: 1, minHeight: '400px' }}>
-            <UploadZone onFileSelect={handleFileSelect} />
-          </div>
-        </div>
+        {/* Main Interaction Area */}
+        <div style={{ width: '100%', maxWidth: result ? '1000px' : '800px', transition: 'max-width 0.5s ease' }}>
 
-        {/* Right Panel: Output */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-          {/* If file selected, show preview */}
-          {file && (
-            <div className="glass-panel" style={{ padding: '1rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <div style={{ width: '60px', height: '60px', background: '#000', borderRadius: '4px', overflow: 'hidden' }}>
-                <img src={URL.createObjectURL(file)} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          {/* Upload Zone - Collapses when result is shown, or stays if we want re-upload */}
+          {!result && (
+            <motion.div layout>
+              <div className="glass-panel" style={{ padding: '2rem' }}>
+                <UploadZone onFileSelect={handleFileSelect} />
               </div>
-              <div>
-                <h4 style={{ margin: 0 }}>{file.name}</h4>
-                <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>{(file.size / 1024 / 1024).toFixed(2)} MB</span>
-              </div>
-            </div>
+            </motion.div>
           )}
 
-          <AnalysisResult isLoading={analyzing} result={result} />
-
-          {/* History Panel */}
-          <div className="glass-panel" style={{ flex: 1, padding: '2rem', overflowY: 'auto', maxHeight: '500px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid var(--text-dim)', paddingBottom: '0.5rem' }}>
-              <h3 style={{ margin: 0, color: 'var(--text-dim)' }}>RECENT SCANS</h3>
-              <button onClick={fetchHistory} className="btn-cyber" style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem' }}>REFRESH</button>
-            </div>
-
-            {history.length === 0 ? (
-              <div style={{ color: 'var(--text-dim)', textAlign: 'center', padding: '2rem' }}>NO RECENT DATA</div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {history.map((session) => (
-                  <div key={session.id} style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '1rem',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    borderRadius: '8px',
-                    borderLeft: `4px solid ${session.result?.verdict === 'Fake' ? 'var(--danger-red)' : 'var(--primary-cyan)'}`
-                  }}>
-                    <div>
-                      <div style={{ fontWeight: 600 }}>{session.filename}</div>
-                      <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>{new Date(session.createdAt).toLocaleString()}</div>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{
-                        color: session.result?.verdict === 'Fake' ? 'var(--danger-red)' : 'var(--primary-cyan)',
-                        fontWeight: 'bold',
-                        textTransform: 'uppercase'
-                      }}>
-                        {session.result?.verdict}
-                      </div>
-                      <div style={{ fontSize: '0.8rem' }}>{(session.result?.overallConfidence * 100).toFixed(1)}%</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+          {/* Analysis View */}
+          <div style={{ marginTop: '2rem' }}>
+            <AnalysisResult isLoading={analyzing} result={result} />
           </div>
+
+          {/* Re-upload Action */}
+          {result && !analyzing && (
+            <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+              <button
+                className="btn-ghost"
+                onClick={() => { setResult(null); setFile(null); }}
+              >
+                Analyzing another artifact? Reset Scanner
+              </button>
+            </div>
+          )}
         </div>
 
       </main>
+
+      {/* Background Ambience */}
+      <div style={{
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        width: '100%',
+        height: '30vh',
+        background: 'linear-gradient(to top, rgba(11, 14, 20, 1) 0%, transparent 100%)',
+        pointerEvents: 'none',
+        zIndex: -1
+      }}></div>
+
     </div>
   );
 }

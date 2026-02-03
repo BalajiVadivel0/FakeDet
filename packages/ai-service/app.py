@@ -61,7 +61,7 @@ def analyze_frame():
         return jsonify({
             'frameNumber': request.form.get('frameNumber', 0),
             'confidence': result['confidence'],
-            'probability': result['distribution'],
+            'distribution': result['distribution'],
             'is_fake': result['is_fake'],
             'processingTime': processing_time,
             'modelVersion': '1.0.0'

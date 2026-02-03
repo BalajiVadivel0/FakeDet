@@ -1,28 +1,27 @@
 # How to Run FakeDet
 
-This guide provides step-by-step instructions to run the **FakeDet** application using the **Hybrid Workflow** (Docker for Databases, Local for Services).
+This guide provides step-by-step instructions to run the **FakeDet** application locally without Docker.
 
 ## 1. Prerequisites
 Ensure you have the following installed:
 *   **Node.js** (v18+)
 *   **Python** (v3.9+)
-*   **Docker Desktop** (used only for running MongoDB & Redis easily)
+*   **MongoDB Community Server** (installed and running)
+*   **Redis** (installed and running)
 
 ---
 
-## 2. Start Databases (First Step)
-Before running the application, you must start MongoDB and Redis. The easiest way is to run them as lightweight containers:
+## 2. Start Databases
+Since you are not using Docker, you must ensure your local database services are running.
 
-1.  Open a terminal in the project root.
-2.  Run:
-    ```powershell
-    docker-compose up -d redis mongodb
-    ```
-3.  Verify they are running:
-    ```powershell
-    docker-compose ps
-    ```
-    *(You should see `fakedet-redis-1` and `fakedet-mongodb-1` with status "Up")*
+1.  **MongoDB**: Ensure the MongoDB service is started (usually starts automatically on Windows).
+2.  **Redis**: Start the Redis server.
+    *   *Windows*: If using Memurai or a Redis port, ensure the service is active.
+
+**Verify they are running:**
+Frontend/Backend rely on:
+*   MongoDB: `mongodb://localhost:27017`
+*   Redis: `redis://localhost:6379`
 
 ---
 
@@ -49,7 +48,7 @@ npm run dev:backend
 ```powershell
 cd packages/ai-service
 # Activate venv first: .\.venv\Scripts\Activate.ps1
-py app.py
+python app.py
 ```
 
 **3. Forensic Engine**
@@ -65,6 +64,7 @@ npm run dev:frontend
 ---
 
 ## 4. Troubleshooting
-*   **"ECONNREFUSED 127.0.0.1:6379"**: Redis is not running. Run `docker-compose up -d redis`.
+*   **"ECONNREFUSED 127.0.0.1:6379"**: Redis is not running. Start your local Redis server.
+*   **"connect ECONNREFUSED 127.0.0.1:27017"**: MongoDB is not running. Check your Windows Services.
 *   **"Python not found"**: Try using `py` instead of `python` in the AI Service.
-*   **"Modules not found"**: Run `npm install` in the root directory.
+*   **"Modules not found"**: Run `npm install:all` in the root directory.
