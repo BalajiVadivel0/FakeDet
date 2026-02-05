@@ -39,14 +39,15 @@ try {
   createDirectory('temp');
 
   console.log('\n✅ Development environment setup complete!\n');
-  console.log('Next steps:');
-  console.log('1. Run "npm run install:all" to install all dependencies');
-  console.log('2. Run "npm run dev" to start all services');
-  console.log('3. Open http://localhost:3000 in your browser');
-  console.log('\nFor Docker development:');
-  console.log('1. Run "npm run docker:build" to build containers');
-  console.log('2. Run "npm run docker:up" to start all services');
-  console.log('3. Run "npm run docker:logs" to view logs');
+  console.log('Next steps for LOCAL DEVELOPMENT (No Docker):');
+  console.log('1. Install local MongoDB and Redis (or use cloud services)');
+  console.log('2. Install FFmpeg and add to PATH');
+  console.log('3. Run "npm run install:all" to install all dependencies');
+  console.log('4. Install Python dependencies: "cd packages/ai-service && pip install -r requirements.txt"');
+  console.log('5. Start MongoDB and Redis services');
+  console.log('6. Run "npm run dev" to start all services');
+  console.log('7. Open http://localhost:3000 in your browser');
+  console.log('\nSee LOCAL_SETUP.md for detailed instructions');
 
 } catch (error) {
   console.error('❌ Error setting up development environment:', error.message);

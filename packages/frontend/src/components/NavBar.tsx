@@ -1,6 +1,6 @@
-import React from 'react';
+import { FC } from 'react';
 
-const NavBar = () => {
+const NavBar: FC = () => {
     return (
         <nav className="glass-panel" style={{
             display: 'flex',

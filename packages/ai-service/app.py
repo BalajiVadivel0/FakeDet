@@ -4,6 +4,7 @@ import os
 import time
 from dotenv import load_dotenv
 from src.model_handler import ModelHandler
+from src.custom_model_handler import CustomModelHandler
 from src.utils import load_image_from_bytes, preprocess_image
 
 load_dotenv()
@@ -18,7 +19,18 @@ def get_model():
     global model_handler
     if model_handler is None:
         model_path = os.getenv('MODEL_PATH', 'models/deepfake_detector.pth')
-        model_handler = ModelHandler(model_path=model_path)
+        model_type = os.getenv('MODEL_TYPE', 'huggingface')  # 'huggingface' or 'custom'
+        
+        if model_type == 'custom' and os.path.exists(model_path):
+            # Use custom trained model
+            custom_model_type = os.getenv('CUSTOM_MODEL_TYPE', 'custom_cnn')
+            model_handler = CustomModelHandler(model_path=model_path, model_type=custom_model_type)
+            print(f"Loaded custom model: {model_path}")
+        else:
+            # Use Hugging Face model (default)
+            model_handler = ModelHandler(model_path=model_path)
+            print(f"Loaded Hugging Face model: {model_path}")
+    
     return model_handler
 
 @app.before_request

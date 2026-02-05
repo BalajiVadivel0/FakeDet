@@ -5,16 +5,13 @@ import UploadZone from './components/UploadZone';
 import AnalysisResult from './components/AnalysisResult';
 
 function App() {
-  const [file, setFile] = useState<File | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState<any>(null);
-  const [historyOpen, setHistoryOpen] = useState(false);
 
   // Mock History for now
-  const [history, setHistory] = useState<any[]>([]);
+  const [, setHistory] = useState<any[]>([]);
 
   const handleFileSelect = async (selectedFile: File) => {
-    setFile(selectedFile);
     setAnalyzing(true);
     setResult(null);
 
@@ -112,7 +109,7 @@ function App() {
             <div style={{ textAlign: 'center', marginTop: '2rem' }}>
               <button
                 className="btn-ghost"
-                onClick={() => { setResult(null); setFile(null); }}
+                onClick={() => { setResult(null); }}
               >
                 Analyzing another artifact? Reset Scanner
               </button>
