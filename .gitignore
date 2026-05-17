@@ -106,7 +106,7 @@ Thumbs.db
 .dockerignore
 
 # Models and data
-models/
+packages/ai-service/models/
 data/
 uploads/
 
