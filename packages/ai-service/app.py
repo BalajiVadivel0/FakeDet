@@ -4,8 +4,7 @@ import os
 import time
 from dotenv import load_dotenv
 from src.model_handler import ModelHandler
-from src.custom_model_handler import CustomModelHandler
-from src.utils import load_image_from_bytes, preprocess_image
+from src.utils import load_image_from_bytes
 
 # Load .env from this package directory to ensure correct config when run
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -21,25 +20,9 @@ def get_model():
     global model_handler
     if model_handler is None:
         model_path = os.getenv('MODEL_PATH', 'models/deepfake_detector.pth')
-        model_type = os.getenv('MODEL_TYPE', 'huggingface')  # 'huggingface' or 'custom'
-        print(f"MODEL_TYPE env: {model_type}, MODEL_PATH env: {model_path}", flush=True)
-        
-        # Prefer custom handler when MODEL_TYPE set to 'custom' or when the path
-        # appears to be a local .pth file (or the file exists). This avoids
-        # calling Hugging Face hub with local checkpoints.
-        resolved_model_path = model_path if os.path.isabs(model_path) else os.path.join(base_dir, model_path)
-        file_exists = os.path.exists(resolved_model_path)
-        if model_type == 'custom' or (model_path and model_path.endswith('.pth')) or file_exists:
-            # Use custom trained model even if the file is not present yet.
-            # The CustomModelHandler handles missing files by warning and using an untrained model.
-            custom_model_type = os.getenv('CUSTOM_MODEL_TYPE', 'custom_cnn')
-            model_handler = CustomModelHandler(model_path=model_path, model_type=custom_model_type)
-            print(f"Using custom model handler for: {model_path}", flush=True)
-        else:
-            # Use Hugging Face model (default)
-            model_handler = ModelHandler(model_path=model_path)
-            print(f"Loaded Hugging Face model: {model_path}", flush=True)
-    
+        model_type = os.getenv('MODEL_TYPE', 'huggingface')
+        print(f"Initializing AI Service via HuggingFace API...", flush=True)
+        model_handler = ModelHandler(model_path=model_path)
     return model_handler
 
 @app.before_request
