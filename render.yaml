@@ -1,0 +1,107 @@
+services:
+  # ─────────────────────────────────────────────────
+  # 1. FRONTEND  (Static Site)
+  # ─────────────────────────────────────────────────
+  - type: web
+    name: fakedet-frontend
+    runtime: static
+    rootDir: .
+    buildCommand: >
+      cd packages/shared && npm install && npm run build &&
+      cd ../frontend && npm install && npm run build
+    staticPublishPath: packages/frontend/dist
+    pullRequestPreviewsEnabled: false
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        sync: false          # set manually in Render dashboard → your backend URL
+      - key: VITE_WS_URL
+        sync: false          # set manually in Render dashboard → your backend WS URL
+
+  # ─────────────────────────────────────────────────
+  # 2. BACKEND  (Node.js Web Service)
+  # ─────────────────────────────────────────────────
+  - type: web
+    name: fakedet-backend
+    runtime: node
+    rootDir: .
+    buildCommand: >
+      cd packages/shared && npm install && npm run build &&
+      cd ../backend && npm install && npm run build
+    startCommand: cd packages/backend && npm start
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: FRONTEND_URL
+        sync: false          # set to your frontend Render URL
+      - key: AI_SERVICE_URL
+        sync: false          # set to your ai-service Render URL
+      - key: FORENSIC_SERVICE_URL
+        sync: false          # set to your forensic-engine Render URL
+      - key: MONGODB_URI
+        sync: false          # set to your MongoDB Atlas connection string
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: fakedet-redis
+          property: connectionString
+
+  # ─────────────────────────────────────────────────
+  # 3. AI SERVICE  (Python/Docker Web Service)
+  # ─────────────────────────────────────────────────
+  - type: web
+    name: fakedet-ai-service
+    runtime: docker
+    dockerfilePath: packages/ai-service/Dockerfile
+    dockerContext: .
+    plan: standard           # needs ≥512MB RAM for PyTorch; upgrade if needed
+    envVars:
+      - key: PORT
+        value: 5000
+      - key: MODEL_TYPE
+        value: huggingface
+      - key: MODEL_PATH
+        value: prithivMLmods/Deep-Fake-Detector-v2-Model
+      - key: FLASK_ENV
+        value: production
+      - key: BATCH_SIZE
+        value: 4
+      - key: MAX_WORKERS
+        value: 2
+
+  # ─────────────────────────────────────────────────
+  # 4. FORENSIC ENGINE  (Node.js Web Service)
+  # ─────────────────────────────────────────────────
+  - type: web
+    name: fakedet-forensic-engine
+    runtime: node
+    rootDir: .
+    buildCommand: >
+      cd packages/shared && npm install && npm run build &&
+      cd ../forensic-engine && npm install && npm run build
+    startCommand: cd packages/forensic-engine && npm start
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5001
+
+# ─────────────────────────────────────────────────
+# MANAGED REDIS  (free tier)
+# ─────────────────────────────────────────────────
+databases:
+  - name: fakedet-redis
+    type: redis
+    plan: free
+    maxmemoryPolicy: allkeys-lru

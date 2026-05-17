@@ -17,8 +17,11 @@ RUN cd ../shared && npm install && npm run build
 # Copy source code
 COPY packages/backend/ .
 
+# Build
+RUN npm run build
+
 # Expose port
 EXPOSE 3001
 
-# Start development server with hot reloading
-CMD ["npm", "run", "dev"]
+# Start production server
+CMD ["npm", "start"]

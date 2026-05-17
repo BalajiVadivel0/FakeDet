@@ -28,5 +28,5 @@ RUN mkdir -p /app/models
 # Expose port
 EXPOSE 5000
 
-# Start application with auto-reload for development
-CMD ["python", "-u", "app.py"]
+# Start application with gunicorn for production
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "--timeout", "120", "app:app"]

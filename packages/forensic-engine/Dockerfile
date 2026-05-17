@@ -17,8 +17,11 @@ RUN cd ../shared && npm install && npm run build
 # Copy source code
 COPY packages/forensic-engine/ .
 
+# Build
+RUN npm run build
+
 # Expose port
 EXPOSE 5001
 
-# Start development server with hot reloading
-CMD ["npm", "run", "dev"]
+# Start production server
+CMD ["npm", "start"]

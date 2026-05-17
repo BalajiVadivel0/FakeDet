@@ -4,6 +4,8 @@ import NavBar from './components/NavBar';
 import UploadZone from './components/UploadZone';
 import AnalysisResult from './components/AnalysisResult';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
 function App() {
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState<any>(null);
@@ -19,7 +21,7 @@ function App() {
     formData.append('image', selectedFile);
 
     try {
-      const response = await fetch('http://localhost:3001/api/analyze', {
+      const response = await fetch(`${API_URL}/api/analyze`, {
         method: 'POST',
         body: formData
       });
@@ -39,7 +41,7 @@ function App() {
 
   const fetchHistory = async () => {
     try {
-      const res = await fetch('http://localhost:3001/api/history');
+      const res = await fetch(`${API_URL}/api/history`);
       if (res.ok) {
         const data = await res.json();
         setHistory(data);
