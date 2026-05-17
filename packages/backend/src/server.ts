@@ -6,7 +6,7 @@ import morgan from 'morgan';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import dotenv from 'dotenv';
-import { databaseService } from './services/DatabaseService';
+import { databaseService } from './services/DatabaseService.js';
 import multer from 'multer';
 import FormData from 'form-data';
 import axios from 'axios';
@@ -62,7 +62,7 @@ app.get('/health', async (req, res) => {
   }
 });
 
-import { VideoSession } from './models/VideoSession';
+import { VideoSession } from './models/VideoSession.js';
 import { v4 as uuidv4 } from 'uuid';
 
 // ... (existing imports)

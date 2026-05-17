@@ -1,5 +1,5 @@
-import { dbConnection } from '../database/connection';
-import { redisClient } from '../cache/RedisClient';
+import { dbConnection } from '../database/connection.js';
+import { redisClient } from '../cache/RedisClient.js';
 
 export class DatabaseService {
   private static instance: DatabaseService;
