@@ -1,0 +1,11 @@
+{
+  "confidence": 0.5041230916976929,
+  "distribution": {
+    "fake": 0.5041230916976929,
+    "real": 0.4958769679069519
+  },
+  "frameNumber": 0,
+  "is_fake": true,
+  "modelVersion": "1.0.0",
+  "processingTime": 675.4271984100342
+}

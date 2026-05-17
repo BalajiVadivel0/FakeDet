@@ -1,0 +1,8 @@
+{
+  "device": "cpu",
+  "model_loaded": true,
+  "service": "ai-inference",
+  "status": "healthy",
+  "timestamp": "2026-05-17T07:40:19Z",
+  "version": "1.0.0"
+}
