@@ -1,16 +1,82 @@
-import torch
-import torch.nn as nn
-from transformers import AutoImageProcessor, AutoModelForImageClassification
 import os
+import requests
+import base64
+from io import BytesIO
+
+HF_API_URL = "https://api-inference.huggingface.co/models/prithivMLmods/Deep-Fake-Detector-v2-Model"
 
 class ModelHandler:
     def __init__(self, model_path: str = None):
-        self.model = None
-        self.processor = None
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        # Default to a known good model if no path provided
-        self.model_name = model_path if model_path and "/" in model_path else "prithivMLmods/Deep-Fake-Detector-v2-Model"
-        self.load_model()
+        self.model = True  # Signals model is "loaded" (remote API)
+        self.device = "huggingface-api"
+        self.api_token = os.getenv("HF_API_TOKEN", "")
+        self.api_url = HF_API_URL
+        print(f"Using HuggingFace Inference API: {self.api_url}")
+
+    def predict(self, image):
+        """
+        Sends a PIL Image to HuggingFace Inference API and returns scores.
+        """
+        try:
+            # Convert PIL image to bytes
+            buffered = BytesIO()
+            image.save(buffered, format="JPEG")
+            img_bytes = buffered.getvalue()
+
+            headers = {}
+            if self.api_token:
+                headers["Authorization"] = f"Bearer {self.api_token}"
+
+            response = requests.post(
+                self.api_url,
+                headers=headers,
+                data=img_bytes,
+                timeout=60
+            )
+
+            if response.status_code == 503:
+                # Model is loading on HuggingFace side — return neutral result
+                print("HuggingFace model is loading, returning neutral result")
+                return {
+                    "is_fake": False,
+                    "confidence": 0.5,
+                    "distribution": {"real": 0.5, "fake": 0.5},
+                    "note": "Model warming up, try again in 20 seconds"
+                }
+
+            response.raise_for_status()
+            results = response.json()
+
+            # Response format: [{"label": "Fake", "score": 0.97}, {"label": "Real", "score": 0.03}]
+            fake_score = 0.0
+            real_score = 0.0
+
+            for item in results:
+                label = item.get("label", "").lower()
+                score = item.get("score", 0.0)
+                if "fake" in label:
+                    fake_score = score
+                elif "real" in label:
+                    real_score = score
+
+            return {
+                "is_fake": fake_score > real_score,
+                "confidence": max(fake_score, real_score),
+                "distribution": {
+                    "real": real_score,
+                    "fake": fake_score
+                }
+            }
+
+        except Exception as e:
+            print(f"HuggingFace API error: {e}")
+            return {
+                "is_fake": False,
+                "confidence": 0.0,
+                "distribution": {"real": 0.0, "fake": 0.0},
+                "error": str(e)
+            }
+
 
     def load_model(self):
         """

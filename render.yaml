@@ -64,20 +64,16 @@ services:
     runtime: docker
     dockerfilePath: packages/ai-service/Dockerfile
     dockerContext: .
-    plan: standard           # needs ≥512MB RAM for PyTorch; upgrade if needed
+    plan: free
     envVars:
       - key: PORT
         value: 5000
       - key: MODEL_TYPE
         value: huggingface
-      - key: MODEL_PATH
-        value: prithivMLmods/Deep-Fake-Detector-v2-Model
       - key: FLASK_ENV
         value: production
-      - key: BATCH_SIZE
-        value: 4
-      - key: MAX_WORKERS
-        value: 2
+      - key: HF_API_TOKEN
+        sync: false          # set your HuggingFace token in Render dashboard (optional but recommended)
 
   # ─────────────────────────────────────────────────
   # 4. FORENSIC ENGINE  (Node.js Web Service)

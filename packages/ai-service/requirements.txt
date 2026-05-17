@@ -1,14 +1,9 @@
 flask
-torch
-torchvision
-opencv-python
+flask-cors
+opencv-python-headless
 numpy
 pillow
 python-dotenv
 gunicorn
-watchdog
-flask-cors
+requests
 pytest
-requests-mock
-transformers
-
