@@ -332,8 +332,11 @@ async function startServer() {
     });
 
   } catch (error) {
+    console.log('--- FATAL ERROR ---');
     console.error('Failed to start server:', error);
-    process.exit(1);
+    console.log('Make sure MONGODB_URI and REDIS_URL are correctly set in Render environment variables!');
+    // Delay exit to ensure logs are flushed
+    setTimeout(() => process.exit(1), 1000);
   }
 }
 
